@@ -1,16 +1,11 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"log"
 	"supplysense/config"
-
 	"fmt"
-	// "log"
 	"net/http"
 
-	// "github.com/labstack/echo-contrib/session"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
@@ -33,15 +28,6 @@ func init(){
 		
 	}
 
-func generateState() (string, error) {
-    b := make([]byte, 32)
-    _, err := rand.Read(b)
-    if err != nil {
-        return "", err
-    }
-    return base64.URLEncoding.EncodeToString(b), nil
-}
-
 func Login(c echo.Context) error {
 	reqWContext := c.Request()
 	reqWContext = gothic.GetContextWithProvider(reqWContext, c.Param("provider"))
@@ -58,6 +44,7 @@ func LoginCallback(c echo.Context) error {
 	user, err := gothic.CompleteUserAuth(c.Response().Writer, reqWContext)
 	if err != nil {
 		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
