@@ -1,8 +1,10 @@
 package routes
 
 import (
-	userHandler "supplysense/internal/User/handler"
 	"log"
+	auth "supplysense/internal/Auth"
+	userHandler "supplysense/internal/User/handler"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,4 +15,6 @@ func RegisterRoute(echo *echo.Echo) {
 	Api.POST("/user", userHandler.Register)   // Debugging
 	// Api.GET("/user")
 	// Api.GET("/user")
+	Api.GET("/login/:provider", auth.Login)
+	Api.GET("/login/:provider/callback", auth.LoginCallback)
 }
