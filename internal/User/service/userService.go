@@ -14,9 +14,6 @@ func GetAllUsers()([]model.User, error){
 	return users, nil
 }
 
-func Register(user *model.User) error {
-	return database.DB.Create(user).Error
-}
 
 
 

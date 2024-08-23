@@ -13,7 +13,6 @@ var DB *gorm.DB
 
 func DBConnect() {
 	var err error
-	config.LoadEnv()
 	dbconfig := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
 	config.GetEnv("DATABASE_HOST"),
 	config.GetEnv("DATABASE_USERNAME"),

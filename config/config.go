@@ -26,7 +26,9 @@ func GetEnv(key string) string {
 }
 
 func GothSetup(){
-	LoadEnv()
+	goth.UseProviders(
+		google.New(GetEnv("GOOGLE_CLIENT"), GetEnv("GOOGLE_SECRET"), GetEnv("WEB_URL")+"/api/login/google/callback", "email", "profile"),
+	)
 	sessionStore := sessions.NewCookieStore([]byte(GetEnv("SECRET_KEY")))
 	sessionStore.Options = &sessions.Options{
 		Path:     "/",               // Path untuk cookie
@@ -34,8 +36,5 @@ func GothSetup(){
 		HttpOnly: true,             // Hanya bisa diakses melalui HTTP
 		Secure:   false,            // Gunakan HTTPS
 	}
-	goth.UseProviders(
-		google.New(GetEnv("GOOGLE_CLIENT"), GetEnv("GOOGLE_SECRET"), GetEnv("WEB_URL")+GetEnv("WEB_PORT")+"/api/login/google/callback", "email", "profile"),
-	)
 	gothic.Store = sessionStore
 }

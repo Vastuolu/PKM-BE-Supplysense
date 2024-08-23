@@ -38,12 +38,13 @@ func Register(c echo.Context) error {
     //     })
     // }
 
-    err := service.Register(&user)
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, map[string]string{
-            "message": "Validation failed",
-            "error":   err.Error(),
-        })
-    }
-	return c.JSON(http.StatusCreated, user)
+    // err := service.Register(&user)
+    // if err != nil {
+    //     return c.JSON(http.StatusInternalServerError, map[string]string{
+    //         "message": "Validation failed",
+    //         "error":   err.Error(),
+    //     })
+    // }
+    // c.JSON(http.StatusCreated, user)
+	return nil
 }

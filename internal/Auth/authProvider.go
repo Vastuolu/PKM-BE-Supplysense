@@ -1,13 +1,13 @@
 package auth
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"time"
 	"supplysense/config"
 	"supplysense/database"
+	"supplysense/helper"
 	"supplysense/internal/User/model"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -16,38 +16,31 @@ import (
 )
 
 
-type jwtTokenInterface struct{
-	ID string
-	Username string
-	Email string
-	Avatar string
-	Provider string
-	jwt.RegisteredClaims
-}
-
-
-func Login(c echo.Context) error {
+func LoginProvider(c echo.Context) error {
 	reqWContext := c.Request()
 	reqWContext = gothic.GetContextWithProvider(reqWContext, c.Param("provider"))
 	urlAuth, err := gothic.GetAuthURL(c.Response().Writer,reqWContext)
 	if err != nil {
 		log.Printf("error: %v", err)
-		return c.JSON(http.StatusInternalServerError, err)
+		resMap := helper.JsonResponse(500, nil, 0,err)
+		return c.JSON(500, resMap)
 	}
-	return c.JSON(http.StatusTemporaryRedirect, urlAuth)
+	resMap := helper.JsonResponse(200,  helper.InterfaceMaker("urlAuth", urlAuth), 1,nil)
+	return c.JSON(http.StatusOK,resMap)
 }
 
-func LoginCallback(c echo.Context) error {
+func LoginProviderCallback(c echo.Context) error {
 	//complete user login and take information
     reqWContext := gothic.GetContextWithProvider(c.Request(), c.Param("provider"))
 	user, err := gothic.CompleteUserAuth(c.Response().Writer, reqWContext)
 	if err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusInternalServerError, err)
+		resMap := helper.JsonResponse(500, nil, 0, err)
+		return c.JSON(500, resMap)
 	}
 
 	if err := userFindorCreate(&user); err != nil{
-		return c.JSON(http.StatusInternalServerError, err)
+		resMap := helper.JsonResponse(500, nil,0,err)
+		return c.JSON(500, resMap)
 	}
 
 	//make jwt token
@@ -68,23 +61,13 @@ func LoginCallback(c echo.Context) error {
 	}
 
 	signedToken,err := makeJwtToken(&claims)
-	if err != nil{
-		return c.JSON(http.StatusInternalServerError, err)
-	}
-
-	return c.JSON(http.StatusOK, signedToken)
-}
-
-
-func makeJwtToken(claims *jwtTokenInterface) (string, error){
-	signSecret := []byte(config.GetEnv("SECRET_KEY"))
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(signSecret)
 	if err != nil {
-		log.Printf("error: %v", err)
-		return "", err
+		resMap := helper.JsonResponse(500, nil, 0, err)
+		return c.JSON(500, resMap)
 	}
-	return signedToken, nil
+
+	resMap := helper.JsonResponse(200, helper.InterfaceMaker("token", signedToken),1, nil)
+	return c.JSON(200, resMap)
 }
 
 func userFindorCreate(userGoth *goth.User) error {

@@ -11,8 +11,15 @@ import (
 func RegisterRoute(echo *echo.Echo) {
     log.Println("register runned")
 	Api := echo.Group("/api")
-	Api.GET("/user", userHandler.GetAllUsers) // Debugging
+	
+	//Standard Auth Route
+	Api.POST("/login", auth.LoginStandard)
+	Api.POST("/register", auth.RegisterStandard)
+	
+	//Provider Auth Route
+	Api.GET("/login/:provider", auth.LoginProvider)
+	Api.GET("/login/:provider/callback", auth.LoginProviderCallback)
+	
 	Api.POST("/user", userHandler.Register)   // Debugging
-	Api.GET("/login/:provider", auth.Login)
-	Api.GET("/login/:provider/callback", auth.LoginCallback)
+	Api.GET("/user", userHandler.GetAllUsers) // Debugging
 }
