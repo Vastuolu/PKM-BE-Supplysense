@@ -13,8 +13,6 @@ func RegisterRoute(echo *echo.Echo) {
 	Api := echo.Group("/api")
 	Api.GET("/user", userHandler.GetAllUsers) // Debugging
 	Api.POST("/user", userHandler.Register)   // Debugging
-	// Api.GET("/user")
-	// Api.GET("/user")
 	Api.GET("/login/:provider", auth.Login)
 	Api.GET("/login/:provider/callback", auth.LoginCallback)
 }

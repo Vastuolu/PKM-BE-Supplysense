@@ -30,8 +30,7 @@ func GothSetup(){
 	sessionStore := sessions.NewCookieStore([]byte(GetEnv("SECRET_KEY")))
 	sessionStore.Options = &sessions.Options{
 		Path:     "/",               // Path untuk cookie
-		Domain:   "",                // Domain (kosong untuk default)
-		MaxAge:   3600,             // Durasi cookie dalam detik
+		MaxAge:   3600 * 30,             // Durasi cookie dalam detik
 		HttpOnly: true,             // Hanya bisa diakses melalui HTTP
 		Secure:   false,            // Gunakan HTTPS
 	}
@@ -39,5 +38,4 @@ func GothSetup(){
 		google.New(GetEnv("GOOGLE_CLIENT"), GetEnv("GOOGLE_SECRET"), GetEnv("WEB_URL")+GetEnv("WEB_PORT")+"/api/login/google/callback", "email", "profile"),
 	)
 	gothic.Store = sessionStore
-	
 }

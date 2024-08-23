@@ -5,8 +5,13 @@ import (
 )
 
 type User struct {
-	gorm.Model
+	ID        string `gorm:"primaryKey;size:255"`
 	Username string `gorm:"not null;size:100" validate:"required,max=100"` 
 	Email string `gorm:"unique;not null;size:100" validate:"required,email"`
-	Password string `gorm:"not null" validate:"required,min=8"`
+	Password *string `validate:"min=8"`
+	Provider string `gorm:"not null; size:100"`
+	Firstname string `gorm:"not null; size:256"`
+	Lastname string `gorm:"not null; size:256"`
+	AvatarUrl *string `validate:url`
+	gorm.Model
 }

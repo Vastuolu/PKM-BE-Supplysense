@@ -16,7 +16,7 @@ var (
 func main(){
 	config.LoadEnv()
 	e := echo.New()
-	// config.GothSetup()
+	config.GothSetup()
 	validate = validator.New(validator.WithRequiredStructEnabled())
 	routes.RegisterRoute(e)
 	database.DBConnect()

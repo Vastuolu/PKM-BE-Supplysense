@@ -18,3 +18,5 @@ func Register(user *model.User) error {
 	return database.DB.Create(user).Error
 }
 
+
+
