@@ -1,27 +1,40 @@
 package auth
 
 import (
-	"log"
 	"supplysense/config"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type jwtTokenInterface struct{
+type jwtPayloadInterface struct{
 	ID string `json:"id"`
 	Username string `json:"username"`
 	Email string `json:"email"`
 	AvatarUrl string `json:"avatarUrl"`
 	Provider string `json:"provider"`
+}
+
+type jwtClaimsInterface struct{
+	jwtPayloadInterface
 	jwt.RegisteredClaims
 }
 
-func makeJwtToken(claims *jwtTokenInterface) (string, error){
+func makeJwtToken(jwtInterface *jwtPayloadInterface) (string, error){
+	claims := jwtClaimsInterface{
+		*jwtInterface,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    config.GetEnv("WEB_URL"),
+			Subject:   jwtInterface.ID,
+		},
+	}
 	signSecret := []byte(config.GetEnv("SECRET_KEY"))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(signSecret)
 	if err != nil {
-		log.Printf("error: %v", err)
 		return "", err
 	}
 	return signedToken, nil

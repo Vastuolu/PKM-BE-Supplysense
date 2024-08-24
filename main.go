@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"supplysense/config"
 	"supplysense/database"
 	"supplysense/routes"
@@ -17,7 +16,6 @@ type CustomValidator struct{
 func (cv *CustomValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
 		errs := err.(validator.ValidationErrors)
-		fmt.Println(errs.Error())
 	  // Optionally, you could return the error to give each route more control over the status code
 	  return errs
 	}

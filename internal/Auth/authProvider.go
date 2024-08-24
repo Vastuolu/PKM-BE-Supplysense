@@ -1,15 +1,11 @@
 package auth
 
 import (
-	"log"
 	"net/http"
-	"supplysense/config"
 	"supplysense/database"
 	"supplysense/helper"
 	"supplysense/internal/User/model"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -21,7 +17,6 @@ func LoginProvider(c echo.Context) error {
 	reqWContext = gothic.GetContextWithProvider(reqWContext, c.Param("provider"))
 	urlAuth, err := gothic.GetAuthURL(c.Response().Writer,reqWContext)
 	if err != nil {
-		log.Printf("error: %v", err)
 		resMap := helper.JsonResponse(500, nil, 0,err)
 		return c.JSON(500, resMap)
 	}
@@ -44,20 +39,12 @@ func LoginProviderCallback(c echo.Context) error {
 	}
 
 	//make jwt token
-	claims := jwtTokenInterface{
+	claims := jwtPayloadInterface{
 			user.UserID,
 			user.NickName,
 			user.Email,
 			user.AvatarURL,
 			user.Provider,
-			jwt.RegisteredClaims{
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-				IssuedAt:  jwt.NewNumericDate(time.Now()),
-				NotBefore: jwt.NewNumericDate(time.Now()),
-				Issuer:    config.GetEnv("WEB_URL"),
-				Subject:   user.UserID,
-			},
-
 	}
 
 	signedToken,err := makeJwtToken(&claims)

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"supplysense/database"
 	"supplysense/helper"
 	"supplysense/internal/User/model"
@@ -13,7 +12,53 @@ import (
 )
 
 func LoginStandard(c echo.Context) error {
-	return nil
+	var user model.User
+	var userDB model.User
+	var avatarURL string
+	if err := c.Bind(&user); err != nil{
+		resMap := helper.JsonResponse(500, nil, 0, err)
+		return c.JSON(500, resMap)
+	}
+
+	user.IsRegister = false
+	if err := c.Validate(&user); err != nil {
+		resMap := helper.JsonResponse(400, nil, 0, helper.MapValidationErr(err))
+		return c.JSON(400, resMap)
+	}
+	
+	result := database.DB.Where(&model.User{Email: user.Email, Provider: "standard"}).First(&userDB)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		resMap := helper.JsonResponse(401, nil, 0, "Email or Password Wrong")
+		return c.JSON(401, resMap)
+	}
+	
+	if err:= bcrypt.CompareHashAndPassword([]byte(*userDB.Password), []byte(*user.Password) ); err != nil {
+		resMap := helper.JsonResponse(401, nil, 0, "Email or Password Wrong")
+		return c.JSON(401, resMap)
+	}
+
+	if userDB.AvatarUrl == nil{
+		avatarURL = ""
+	}else{
+		avatarURL = *userDB.AvatarUrl
+	}
+
+	claims := jwtPayloadInterface{
+		userDB.ID,
+		userDB.Username,
+		userDB.Email,
+		avatarURL,
+		userDB.Provider,
+	}
+	
+	signedToken,err := makeJwtToken(&claims)
+	if err != nil {
+		resMap := helper.JsonResponse(500, nil, 0, err)
+		return c.JSON(500, resMap)
+	}
+
+	resMap := helper.JsonResponse(200, helper.InterfaceMaker("token", signedToken),1, nil)
+	return c.JSON(200, resMap)
 }
 
 func RegisterStandard(c echo.Context) error {
@@ -25,16 +70,18 @@ func RegisterStandard(c echo.Context) error {
 		return c.JSON(500, resMap)
 	}
 
+	user.IsRegister = true
+	if err := c.Validate(&user); err != nil {
+		resMap := helper.JsonResponse(400, nil, 0, helper.MapValidationErr(err))
+		return c.JSON(400, resMap)
+	}
+
 	result := database.DB.Where(&model.User{Email: user.Email, Provider: "standard"}).First(&temp)
 	if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		resMap := helper.JsonResponse(422, nil, 0, "Email already Registered")
 		return c.JSON(422, resMap)
 	}
-		
-	if err := c.Validate(&user); err != nil {
-		resMap := helper.JsonResponse(400, nil, 0, helper.MapValidationErr(err))
-		return c.JSON(400, resMap)
-	}
+	
 
 	rawHashedPassword, err := bcrypt.GenerateFromPassword([]byte(*user.Password), bcrypt.DefaultCost)
 	if err != nil{
@@ -43,7 +90,6 @@ func RegisterStandard(c echo.Context) error {
 	}
 	hashedPassword := string(rawHashedPassword)
 	user.Password = &hashedPassword
-	fmt.Println(user)
 	createdData := database.DB.Create(&user)
 	if createdData.Error != nil {
 		resMap := helper.JsonResponse(500, nil, 0, createdData.Error)

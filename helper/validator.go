@@ -22,6 +22,8 @@ func MapValidationErr(err error)map[string]string{
 		switch tag{
 		case "required":
 			errMessage = fieldName+" is Required"
+		case "required_if":
+			errMessage = fieldName+" is Required"
 		case "email":
 			errMessage = fieldName+" is not a valid Email"
 		case "max":
@@ -29,7 +31,7 @@ func MapValidationErr(err error)map[string]string{
 		case "url":
 			errMessage = fieldName+" is not a valid url"
 		default:
-			errMessage = fieldName+" is not a valid"
+			errMessage = fieldName+" is not valid, "
 		}
 
 		errMap[strings.ToLower(fieldName)] = errMessage
