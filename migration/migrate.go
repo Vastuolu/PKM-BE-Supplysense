@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"supplysense/config"
 	"supplysense/database"
 	"supplysense/migration/migrations"
 )
 
 func main(){
+	config.LoadEnv()
 	database.DBConnect()
 	db := database.DB
 	var choose string

@@ -8,11 +8,11 @@ import (
 )
 
 type jwtTokenInterface struct{
-	ID string
-	Username string
-	Email string
-	Avatar string
-	Provider string
+	ID string `json:"id"`
+	Username string `json:"username"`
+	Email string `json:"email"`
+	AvatarUrl string `json:"avatarUrl"`
+	Provider string `json:"provider"`
 	jwt.RegisteredClaims
 }
 

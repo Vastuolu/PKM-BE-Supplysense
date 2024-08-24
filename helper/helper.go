@@ -8,11 +8,11 @@ type responseHelp struct{
 	Total	int `json:"total"`
 	Status  int `json:"status"`
     Message string `json:"message"`
-	Error   string `json:"error,omitempty"`
+	Error   interface{}`json:"error,omitempty"`
     Data    interface{} `json:"data,omitempty"` 
 }
 
-func JsonResponse(code int, data interface{},totalData int, err error) interface{} {
+func JsonResponse(code int, data interface{},totalData int, err interface{}) interface{} {
 	responseMap := responseHelp{
 		Status: code,
 		Message: http.StatusText(code),
@@ -21,7 +21,7 @@ func JsonResponse(code int, data interface{},totalData int, err error) interface
 		responseMap.Data = data
 		responseMap.Total = totalData
 	}else{
-		responseMap.Error = err.Error()
+		responseMap.Error = err
 	}
 	return responseMap
 }
